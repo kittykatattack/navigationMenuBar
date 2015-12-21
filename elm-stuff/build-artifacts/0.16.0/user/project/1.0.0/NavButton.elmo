@@ -1,0 +1,60 @@
+Elm.NavButton = Elm.NavButton || {};
+Elm.NavButton.make = function (_elm) {
+   "use strict";
+   _elm.NavButton = _elm.NavButton || {};
+   if (_elm.NavButton.values) return _elm.NavButton.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var navButtonStyle = function (model) {
+      return $Html$Attributes.style(_U.list([{ctor: "_Tuple2",_0: "color",_1: model.textColor}
+                                            ,{ctor: "_Tuple2",_0: "background",_1: model.backgroundColor}
+                                            ,{ctor: "_Tuple2",_0: "height",_1: "50px"}
+                                            ,{ctor: "_Tuple2",_0: "width",_1: "150px"}
+                                            ,{ctor: "_Tuple2",_0: "display",_1: "flex"}
+                                            ,{ctor: "_Tuple2",_0: "justify-content",_1: "center"}
+                                            ,{ctor: "_Tuple2",_0: "align-items",_1: "center"}
+                                            ,{ctor: "_Tuple2",_0: "cursor",_1: "pointer"}
+                                            ,{ctor: "_Tuple2",_0: "margin-bottom",_1: "10px"}
+                                            ,{ctor: "_Tuple2",_0: "-webkit-user-select",_1: "none"}
+                                            ,{ctor: "_Tuple2",_0: "-moz-user-select",_1: "none"}
+                                            ,{ctor: "_Tuple2",_0: "-khtml-user-select",_1: "none"}
+                                            ,{ctor: "_Tuple2",_0: "-ms-user-select",_1: "none"}
+                                            ,{ctor: "_Tuple2",_0: "userSelect",_1: "none"}]));
+   };
+   var update = F2(function (action,model) {
+      var _p0 = action;
+      if (_p0.ctor === "On") {
+            return _U.update(model,{textColor: "red"});
+         } else {
+            return _U.update(model,{textColor: "white"});
+         }
+   });
+   var Off = {ctor: "Off"};
+   var On = {ctor: "On"};
+   var view = F2(function (address,model) {
+      return A2($Html.li,
+      _U.list([navButtonStyle(model),A2($Html$Events.onMouseEnter,address,On),A2($Html$Events.onMouseLeave,address,Off)]),
+      _U.list([$Html.text(model.content)]));
+   });
+   var model = {content: "Test",textColor: "white",backgroundColor: "darkGrey"};
+   var initialize = function (content) {    return _U.update(model,{content: content});};
+   var Model = F3(function (a,b,c) {    return {content: a,textColor: b,backgroundColor: c};});
+   return _elm.NavButton.values = {_op: _op
+                                  ,Model: Model
+                                  ,model: model
+                                  ,initialize: initialize
+                                  ,On: On
+                                  ,Off: Off
+                                  ,update: update
+                                  ,view: view
+                                  ,navButtonStyle: navButtonStyle};
+};
