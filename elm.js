@@ -10319,6 +10319,33 @@ Elm.StartApp.Simple.make = function (_elm) {
    var Config = F3(function (a,b,c) {    return {model: a,view: b,update: c};});
    return _elm.StartApp.Simple.values = {_op: _op,Config: Config,start: start};
 };
+Elm.ColorBox = Elm.ColorBox || {};
+Elm.ColorBox.make = function (_elm) {
+   "use strict";
+   _elm.ColorBox = _elm.ColorBox || {};
+   if (_elm.ColorBox.values) return _elm.ColorBox.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var boxStyle = function (model) {
+      return $Html$Attributes.style(_U.list([{ctor: "_Tuple2",_0: "background",_1: model.color}
+                                            ,{ctor: "_Tuple2",_0: "width",_1: A2($Basics._op["++"],$Basics.toString(model.width),"px")}
+                                            ,{ctor: "_Tuple2",_0: "height",_1: A2($Basics._op["++"],$Basics.toString(model.height),"px")}
+                                            ,{ctor: "_Tuple2",_0: "display",_1: "block"}]));
+   };
+   var view = function (model) {    return A2($Html.div,_U.list([boxStyle(model)]),_U.list([]));};
+   var model = {color: "red",width: 200,height: 200};
+   var changeColor = function (newColor) {    return _U.update(model,{color: newColor});};
+   var Model = F3(function (a,b,c) {    return {color: a,width: b,height: c};});
+   return _elm.ColorBox.values = {_op: _op,Model: Model,model: model,changeColor: changeColor,view: view,boxStyle: boxStyle};
+};
 Elm.NavButton = Elm.NavButton || {};
 Elm.NavButton.make = function (_elm) {
    "use strict";
@@ -10351,31 +10378,40 @@ Elm.NavButton.make = function (_elm) {
                                             ,{ctor: "_Tuple2",_0: "-ms-user-select",_1: "none"}
                                             ,{ctor: "_Tuple2",_0: "userSelect",_1: "none"}]));
    };
+   var Context = F2(function (a,b) {    return {actions: a,select: b};});
    var update = F2(function (action,model) {
       var _p0 = action;
-      if (_p0.ctor === "On") {
-            return _U.update(model,{textColor: "red"});
-         } else {
-            return _U.update(model,{textColor: "white"});
-         }
+      switch (_p0.ctor)
+      {case "Over": return _U.update(model,{textColor: "red"});
+         case "Out": return _U.update(model,{textColor: "white"});
+         case "Select": return _U.update(model,{backgroundColor: "grey",selected: true});
+         default: return _U.update(model,{backgroundColor: "darkGrey",selected: false});}
    });
-   var Off = {ctor: "Off"};
-   var On = {ctor: "On"};
-   var view = F2(function (address,model) {
+   var Deselect = {ctor: "Deselect"};
+   var Select = {ctor: "Select"};
+   var Out = {ctor: "Out"};
+   var Over = {ctor: "Over"};
+   var view = F2(function (context,model) {
       return A2($Html.li,
-      _U.list([navButtonStyle(model),A2($Html$Events.onMouseEnter,address,On),A2($Html$Events.onMouseLeave,address,Off)]),
+      _U.list([navButtonStyle(model)
+              ,A2($Html$Events.onMouseEnter,context.actions,Over)
+              ,A2($Html$Events.onMouseLeave,context.actions,Out)
+              ,A2($Html$Events.onClick,context.select,{ctor: "_Tuple0"})]),
       _U.list([$Html.text(model.content)]));
    });
-   var model = {content: "Test",textColor: "white",backgroundColor: "darkGrey"};
+   var model = {content: "Test",textColor: "white",backgroundColor: "darkGrey",selected: false};
    var initialize = function (content) {    return _U.update(model,{content: content});};
-   var Model = F3(function (a,b,c) {    return {content: a,textColor: b,backgroundColor: c};});
+   var Model = F4(function (a,b,c,d) {    return {content: a,textColor: b,backgroundColor: c,selected: d};});
    return _elm.NavButton.values = {_op: _op
                                   ,Model: Model
                                   ,model: model
                                   ,initialize: initialize
-                                  ,On: On
-                                  ,Off: Off
+                                  ,Over: Over
+                                  ,Out: Out
+                                  ,Select: Select
+                                  ,Deselect: Deselect
                                   ,update: update
+                                  ,Context: Context
                                   ,view: view
                                   ,navButtonStyle: navButtonStyle};
 };
@@ -10398,30 +10434,79 @@ Elm.NavBar.make = function (_elm) {
    var navBarStyle = $Html$Attributes.style(_U.list([{ctor: "_Tuple2",_0: "margin",_1: "0px"},{ctor: "_Tuple2",_0: "padding",_1: "0px"}]));
    var update = F2(function (action,model) {
       var _p0 = action;
-      var updateButton = F2(function (buttonID,buttonModel) {    return _U.eq(buttonID,_p0._0) ? A2($NavButton.update,_p0._1,buttonModel) : buttonModel;});
-      return _U.update(model,{buttons: A2($List.indexedMap,updateButton,model.buttons)});
+      if (_p0.ctor === "Hover") {
+            var updateButton = F2(function (buttonID,buttonModel) {
+               return _U.eq(buttonID,_p0._0) ? A2($NavButton.update,_p0._1,buttonModel) : buttonModel;
+            });
+            return _U.update(model,{buttons: A2($List.indexedMap,updateButton,model.buttons)});
+         } else {
+            var _p1 = _p0._0;
+            var updateButton = function (buttonModel) {
+               return _U.eq(buttonModel.content,_p1.content) ? A2($NavButton.update,$NavButton.Select,buttonModel) : A2($NavButton.update,
+               $NavButton.Deselect,
+               buttonModel);
+            };
+            return _U.update(model,{selectedButton: _p1.content,buttons: A2($List.map,updateButton,model.buttons)});
+         }
    });
-   var Activate = F2(function (a,b) {    return {ctor: "Activate",_0: a,_1: b};});
-   var viewButton = F3(function (address,id,model) {    return A2($NavButton.view,A2($Signal.forwardTo,address,Activate(id)),model);});
+   var Select = function (a) {    return {ctor: "Select",_0: a};};
+   var Hover = F2(function (a,b) {    return {ctor: "Hover",_0: a,_1: b};});
+   var viewButton = F3(function (address,id,model) {
+      var context = A2($NavButton.Context,A2($Signal.forwardTo,address,Hover(id)),A2($Signal.forwardTo,address,$Basics.always(Select(model))));
+      return A2($NavButton.view,context,model);
+   });
    var view = F2(function (address,model) {
       var navButtons = A2($List.indexedMap,viewButton(address),model.buttons);
       return A2($Html.ul,_U.list([navBarStyle]),navButtons);
    });
-   var model = {buttons: _U.list([])};
+   var model = {buttons: _U.list([]),selectedButton: ""};
    var initialize = function (names) {
       var createButtons = function (names) {    return A2($List.map,function (button) {    return $NavButton.initialize(button);},names);};
       return _U.update(model,{buttons: createButtons(names)});
    };
-   var Model = function (a) {    return {buttons: a};};
+   var Model = F2(function (a,b) {    return {buttons: a,selectedButton: b};});
    return _elm.NavBar.values = {_op: _op
                                ,Model: Model
                                ,model: model
                                ,initialize: initialize
-                               ,Activate: Activate
+                               ,Hover: Hover
+                               ,Select: Select
                                ,update: update
                                ,view: view
                                ,viewButton: viewButton
                                ,navBarStyle: navBarStyle};
+};
+Elm.ColorChanger = Elm.ColorChanger || {};
+Elm.ColorChanger.make = function (_elm) {
+   "use strict";
+   _elm.ColorChanger = _elm.ColorChanger || {};
+   if (_elm.ColorChanger.values) return _elm.ColorChanger.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $ColorBox = Elm.ColorBox.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $NavBar = Elm.NavBar.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var update = F2(function (action,model) {
+      var _p0 = action;
+      var getColor = function (selectedButton) {    return !_U.eq(selectedButton,"") ? $ColorBox.changeColor(selectedButton) : model.colorBox;};
+      var newNavBar = A2($NavBar.update,_p0._0,model.navigationBar);
+      return _U.update(model,{navigationBar: newNavBar,colorBox: getColor(newNavBar.selectedButton)});
+   });
+   var UpdateNavigation = function (a) {    return {ctor: "UpdateNavigation",_0: a};};
+   var view = F2(function (address,model) {
+      return A2($Html.div,
+      _U.list([]),
+      _U.list([A2($NavBar.view,A2($Signal.forwardTo,address,UpdateNavigation),model.navigationBar),$ColorBox.view(model.colorBox)]));
+   });
+   var model = {navigationBar: $NavBar.initialize(_U.list(["Blue","Pink","Orange"])),colorBox: $ColorBox.model};
+   var Model = F2(function (a,b) {    return {navigationBar: a,colorBox: b};});
+   return _elm.ColorChanger.values = {_op: _op,Model: Model,model: model,UpdateNavigation: UpdateNavigation,update: update,view: view};
 };
 Elm.Main = Elm.Main || {};
 Elm.Main.make = function (_elm) {
@@ -10430,16 +10515,14 @@ Elm.Main.make = function (_elm) {
    if (_elm.Main.values) return _elm.Main.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
+   $ColorChanger = Elm.ColorChanger.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
-   $NavBar = Elm.NavBar.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $StartApp$Simple = Elm.StartApp.Simple.make(_elm);
    var _op = {};
-   var main = $StartApp$Simple.start({model: $NavBar.initialize(_U.list(["Here are","some","navigation","bar elements","...and one more"]))
-                                     ,update: $NavBar.update
-                                     ,view: $NavBar.view});
+   var main = $StartApp$Simple.start({model: $ColorChanger.model,update: $ColorChanger.update,view: $ColorChanger.view});
    return _elm.Main.values = {_op: _op,main: main};
 };

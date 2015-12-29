@@ -11,12 +11,15 @@ type alias Model =
   { content : String
   , textColor : String
   , backgroundColor : String
+  , selected : Bool
   }
 
+model : Model
 model = 
   { content = "Test"
   , textColor = "white"
   , backgroundColor = "darkGrey"
+  , selected = False
   }
 
 
@@ -27,25 +30,63 @@ initialize content =
 
 -- UPDATE
 
-type Action = On | Off
+-- `Over` and `Out` are the button's hover states. `Select` and
+-- `Deselect` determine its selection state
+
+type Action 
+  = Over 
+  | Out
+  | Select
+  | Deselect
 
 update : Action -> Model -> Model
 update action model = 
   case action of
-    On -> 
+    Over -> 
       { model | textColor = "red" }
 
-    Off ->
+    Out ->
       { model | textColor = "white" }
+
+    Select ->
+      { model
+          | backgroundColor = "grey" 
+          , selected = True
+      }
+
+    Deselect ->
+      { model
+          | backgroundColor = "darkGrey" 
+          , selected = False
+      }
 
 
 -- VIEW
 
-view : Signal.Address Action -> Model -> Html
-view address model =
-  li [ navButtonStyle model
-    , onMouseEnter address On
-    , onMouseLeave address Off 
+-- Create a Context so that the `select` action can be
+-- handled by the parent module. `actions` refer to the
+-- `Over` and `Out` actions that are handled locally.
+-- `select` is an action that is going to be handled 
+-- by the parent `MavBar` module
+
+type alias Context = 
+  { actions : Signal.Address Action
+  , select : Signal.Address ()
+  }
+
+
+-- The view sends the addressed action through
+-- the context so that it can be redirected, if need be.
+-- `oncClick` triggers the `select` action, which will
+-- be handled by the parent `NavBar` module
+
+view : Context -> Model -> Html
+view context model =
+  li 
+    [ navButtonStyle model
+    , onMouseEnter context.actions Over
+    , onMouseLeave context.actions Out
+    , onClick context.select ()
     ] 
     [ text model.content ]
 

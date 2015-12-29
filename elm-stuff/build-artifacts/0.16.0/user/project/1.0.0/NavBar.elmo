@@ -17,26 +17,43 @@ Elm.NavBar.make = function (_elm) {
    var navBarStyle = $Html$Attributes.style(_U.list([{ctor: "_Tuple2",_0: "margin",_1: "0px"},{ctor: "_Tuple2",_0: "padding",_1: "0px"}]));
    var update = F2(function (action,model) {
       var _p0 = action;
-      var updateButton = F2(function (buttonID,buttonModel) {    return _U.eq(buttonID,_p0._0) ? A2($NavButton.update,_p0._1,buttonModel) : buttonModel;});
-      return _U.update(model,{buttons: A2($List.indexedMap,updateButton,model.buttons)});
+      if (_p0.ctor === "Hover") {
+            var updateButton = F2(function (buttonID,buttonModel) {
+               return _U.eq(buttonID,_p0._0) ? A2($NavButton.update,_p0._1,buttonModel) : buttonModel;
+            });
+            return _U.update(model,{buttons: A2($List.indexedMap,updateButton,model.buttons)});
+         } else {
+            var _p1 = _p0._0;
+            var updateButton = function (buttonModel) {
+               return _U.eq(buttonModel.content,_p1.content) ? A2($NavButton.update,$NavButton.Select,buttonModel) : A2($NavButton.update,
+               $NavButton.Deselect,
+               buttonModel);
+            };
+            return _U.update(model,{selectedButton: _p1.content,buttons: A2($List.map,updateButton,model.buttons)});
+         }
    });
-   var Activate = F2(function (a,b) {    return {ctor: "Activate",_0: a,_1: b};});
-   var viewButton = F3(function (address,id,model) {    return A2($NavButton.view,A2($Signal.forwardTo,address,Activate(id)),model);});
+   var Select = function (a) {    return {ctor: "Select",_0: a};};
+   var Hover = F2(function (a,b) {    return {ctor: "Hover",_0: a,_1: b};});
+   var viewButton = F3(function (address,id,model) {
+      var context = A2($NavButton.Context,A2($Signal.forwardTo,address,Hover(id)),A2($Signal.forwardTo,address,$Basics.always(Select(model))));
+      return A2($NavButton.view,context,model);
+   });
    var view = F2(function (address,model) {
       var navButtons = A2($List.indexedMap,viewButton(address),model.buttons);
       return A2($Html.ul,_U.list([navBarStyle]),navButtons);
    });
-   var model = {buttons: _U.list([])};
+   var model = {buttons: _U.list([]),selectedButton: ""};
    var initialize = function (names) {
       var createButtons = function (names) {    return A2($List.map,function (button) {    return $NavButton.initialize(button);},names);};
       return _U.update(model,{buttons: createButtons(names)});
    };
-   var Model = function (a) {    return {buttons: a};};
+   var Model = F2(function (a,b) {    return {buttons: a,selectedButton: b};});
    return _elm.NavBar.values = {_op: _op
                                ,Model: Model
                                ,model: model
                                ,initialize: initialize
-                               ,Activate: Activate
+                               ,Hover: Hover
+                               ,Select: Select
                                ,update: update
                                ,view: view
                                ,viewButton: viewButton

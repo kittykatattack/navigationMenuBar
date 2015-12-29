@@ -30,31 +30,40 @@ Elm.NavButton.make = function (_elm) {
                                             ,{ctor: "_Tuple2",_0: "-ms-user-select",_1: "none"}
                                             ,{ctor: "_Tuple2",_0: "userSelect",_1: "none"}]));
    };
+   var Context = F2(function (a,b) {    return {actions: a,select: b};});
    var update = F2(function (action,model) {
       var _p0 = action;
-      if (_p0.ctor === "On") {
-            return _U.update(model,{textColor: "red"});
-         } else {
-            return _U.update(model,{textColor: "white"});
-         }
+      switch (_p0.ctor)
+      {case "Over": return _U.update(model,{textColor: "red"});
+         case "Out": return _U.update(model,{textColor: "white"});
+         case "Select": return _U.update(model,{backgroundColor: "grey",selected: true});
+         default: return _U.update(model,{backgroundColor: "darkGrey",selected: false});}
    });
-   var Off = {ctor: "Off"};
-   var On = {ctor: "On"};
-   var view = F2(function (address,model) {
+   var Deselect = {ctor: "Deselect"};
+   var Select = {ctor: "Select"};
+   var Out = {ctor: "Out"};
+   var Over = {ctor: "Over"};
+   var view = F2(function (context,model) {
       return A2($Html.li,
-      _U.list([navButtonStyle(model),A2($Html$Events.onMouseEnter,address,On),A2($Html$Events.onMouseLeave,address,Off)]),
+      _U.list([navButtonStyle(model)
+              ,A2($Html$Events.onMouseEnter,context.actions,Over)
+              ,A2($Html$Events.onMouseLeave,context.actions,Out)
+              ,A2($Html$Events.onClick,context.select,{ctor: "_Tuple0"})]),
       _U.list([$Html.text(model.content)]));
    });
-   var model = {content: "Test",textColor: "white",backgroundColor: "darkGrey"};
+   var model = {content: "Test",textColor: "white",backgroundColor: "darkGrey",selected: false};
    var initialize = function (content) {    return _U.update(model,{content: content});};
-   var Model = F3(function (a,b,c) {    return {content: a,textColor: b,backgroundColor: c};});
+   var Model = F4(function (a,b,c,d) {    return {content: a,textColor: b,backgroundColor: c,selected: d};});
    return _elm.NavButton.values = {_op: _op
                                   ,Model: Model
                                   ,model: model
                                   ,initialize: initialize
-                                  ,On: On
-                                  ,Off: Off
+                                  ,Over: Over
+                                  ,Out: Out
+                                  ,Select: Select
+                                  ,Deselect: Deselect
                                   ,update: update
+                                  ,Context: Context
                                   ,view: view
                                   ,navButtonStyle: navButtonStyle};
 };

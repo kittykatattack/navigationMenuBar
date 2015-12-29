@@ -1,0 +1,27 @@
+Elm.ColorBox = Elm.ColorBox || {};
+Elm.ColorBox.make = function (_elm) {
+   "use strict";
+   _elm.ColorBox = _elm.ColorBox || {};
+   if (_elm.ColorBox.values) return _elm.ColorBox.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var boxStyle = function (model) {
+      return $Html$Attributes.style(_U.list([{ctor: "_Tuple2",_0: "background",_1: model.color}
+                                            ,{ctor: "_Tuple2",_0: "width",_1: A2($Basics._op["++"],$Basics.toString(model.width),"px")}
+                                            ,{ctor: "_Tuple2",_0: "height",_1: A2($Basics._op["++"],$Basics.toString(model.height),"px")}
+                                            ,{ctor: "_Tuple2",_0: "display",_1: "block"}]));
+   };
+   var view = function (model) {    return A2($Html.div,_U.list([boxStyle(model)]),_U.list([]));};
+   var model = {color: "red",width: 200,height: 200};
+   var changeColor = function (newColor) {    return _U.update(model,{color: newColor});};
+   var Model = F3(function (a,b,c) {    return {color: a,width: b,height: c};});
+   return _elm.ColorBox.values = {_op: _op,Model: Model,model: model,changeColor: changeColor,view: view,boxStyle: boxStyle};
+};

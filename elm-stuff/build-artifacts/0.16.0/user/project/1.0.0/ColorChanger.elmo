@@ -1,0 +1,32 @@
+Elm.ColorChanger = Elm.ColorChanger || {};
+Elm.ColorChanger.make = function (_elm) {
+   "use strict";
+   _elm.ColorChanger = _elm.ColorChanger || {};
+   if (_elm.ColorChanger.values) return _elm.ColorChanger.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $ColorBox = Elm.ColorBox.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $NavBar = Elm.NavBar.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var update = F2(function (action,model) {
+      var _p0 = action;
+      var getColor = function (selectedButton) {    return !_U.eq(selectedButton,"") ? $ColorBox.changeColor(selectedButton) : model.colorBox;};
+      var newNavBar = A2($NavBar.update,_p0._0,model.navigationBar);
+      return _U.update(model,{navigationBar: newNavBar,colorBox: getColor(newNavBar.selectedButton)});
+   });
+   var UpdateNavigation = function (a) {    return {ctor: "UpdateNavigation",_0: a};};
+   var view = F2(function (address,model) {
+      return A2($Html.div,
+      _U.list([]),
+      _U.list([A2($NavBar.view,A2($Signal.forwardTo,address,UpdateNavigation),model.navigationBar),$ColorBox.view(model.colorBox)]));
+   });
+   var model = {navigationBar: $NavBar.initialize(_U.list(["Blue","Pink","Orange"])),colorBox: $ColorBox.model};
+   var Model = F2(function (a,b) {    return {navigationBar: a,colorBox: b};});
+   return _elm.ColorChanger.values = {_op: _op,Model: Model,model: model,UpdateNavigation: UpdateNavigation,update: update,view: view};
+};

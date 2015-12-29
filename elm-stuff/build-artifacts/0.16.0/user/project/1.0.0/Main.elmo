@@ -5,16 +5,14 @@ Elm.Main.make = function (_elm) {
    if (_elm.Main.values) return _elm.Main.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
+   $ColorChanger = Elm.ColorChanger.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
-   $NavBar = Elm.NavBar.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $StartApp$Simple = Elm.StartApp.Simple.make(_elm);
    var _op = {};
-   var main = $StartApp$Simple.start({model: $NavBar.initialize(_U.list(["Here are","some","navigation","bar elements","...and one more"]))
-                                     ,update: $NavBar.update
-                                     ,view: $NavBar.view});
+   var main = $StartApp$Simple.start({model: $ColorChanger.model,update: $ColorChanger.update,view: $ColorChanger.view});
    return _elm.Main.values = {_op: _op,main: main};
 };
